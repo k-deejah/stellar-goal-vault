@@ -89,4 +89,23 @@ describe('CampaignDetailPanel', () => {
     await user.click(screen.getByText('Add pledge'));
     expect(onPledge).toHaveBeenCalled();
   });
+
+  it('shows error message when pledge fails', async () => {
+    const user = userEvent.setup();
+    const onPledge = vi.fn().mockImplementation(() => Promise.resolve());
+
+    render(
+      <CampaignDetailPanel
+        campaign={mockCampaign}
+        actionError="Pledge failed"
+        onPledge={onPledge}
+        onClaim={async () => {}}
+        onRefund={async () => {}}
+      />
+    );
+
+    await user.type(screen.getByPlaceholderText(/G\.\.\. contributor public key/i), 'GTEST123');
+    await user.click(screen.getByText('Add pledge'));
+    expect(screen.getByText('Pledge failed')).toBeInTheDocument();
+  });
 });
