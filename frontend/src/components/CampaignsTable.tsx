@@ -4,6 +4,7 @@ import { Campaign } from "../types/campaign";
 import { EmptyState } from "./EmptyState";
 import { AssetFilterDropdown } from "./AssetFilterDropdown";
 import { applyFilters, getDistinctAssetCodes } from "./campaignsTableUtils";
+import { useDebounce } from "../hooks/useDebounce";
 
 interface CampaignsTableProps {
   campaigns: Campaign[];
@@ -29,8 +30,8 @@ export function CampaignsTable({
   const [selectedAssetCode, setSelectedAssetCode] = useState("");
   const distinctAssetCodes = useMemo(() => getDistinctAssetCodes(campaigns), [campaigns]);
   const filteredCampaigns = useMemo(
-    () => applyFilters(campaigns, selectedAssetCode, ""),
-    [campaigns, selectedAssetCode],
+    () => applyFilters(campaigns, selectedAssetCode, "", debouncedSearchQuery),
+    [campaigns, selectedAssetCode, debouncedSearchQuery],
   );
   const isEmpty = campaigns.length === 0;
 
@@ -73,6 +74,12 @@ export function CampaignsTable({
       )}
 
       <div className="board-controls">
+        <SearchInput
+          value={searchInput}
+          onChange={setSearchInput}
+          disabled={campaigns.length === 0}
+          placeholder="Search by title, creator, or ID..."
+        />
         <AssetFilterDropdown
           options={distinctAssetCodes}
           value={selectedAssetCode}
